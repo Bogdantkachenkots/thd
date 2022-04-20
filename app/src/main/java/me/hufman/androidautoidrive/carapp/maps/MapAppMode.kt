@@ -26,7 +26,7 @@ class DynamicScreenCaptureConfig(val fullDimensions: RHMIDimensions,
 	}
 
 	override val maxWidth: Int = fullDimensions.visibleWidth
-	override val maxHeight: Int = fullDimensions.visibleHeight
+	override val maxHeight: Int = fullDimensions.appHeight
 	override val compressFormat: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG
 	override val compressQuality: Int
 		get() {

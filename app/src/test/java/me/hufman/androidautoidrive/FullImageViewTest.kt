@@ -35,12 +35,12 @@ class FullImageViewTest {
 		val fullImageView = FullImageView(this.fullImageState, "Map", fullImageConfig, mock(), mock())
 		fullImageView.initWidgets()
 		assertEquals(703, fullImageView.imageComponent.properties[RHMIProperty.PropertyId.WIDTH.id]?.value)
-		assertEquals(480, fullImageView.imageComponent.properties[RHMIProperty.PropertyId.HEIGHT.id]?.value)
+		assertEquals(400, fullImageView.imageComponent.properties[RHMIProperty.PropertyId.HEIGHT.id]?.value)
 
 		appSettings[AppSettings.KEYS.MAP_WIDESCREEN] = "true"
 		fullImageView.initWidgets()
 		assertEquals(1211, fullImageView.imageComponent.properties[RHMIProperty.PropertyId.WIDTH.id]?.value)
-		assertEquals(480, fullImageView.imageComponent.properties[RHMIProperty.PropertyId.HEIGHT.id]?.value)
+		assertEquals(400, fullImageView.imageComponent.properties[RHMIProperty.PropertyId.HEIGHT.id]?.value)
 	}
 
 	@Test
