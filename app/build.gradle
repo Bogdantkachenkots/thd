@@ -31,7 +31,7 @@ def runProguardInDebug = false
 def isRunningOnCI = System.getenv("CI") == "true"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 32
     androidGitVersion {
         hideBranches = [ 'main' ]
         // include build number for CI builds, omit for local builds
@@ -45,7 +45,7 @@ android {
     defaultConfig {
         applicationId "me.hufman.androidautoidrive"
         minSdkVersion 23
-        targetSdkVersion 30
+        targetSdkVersion 32
         versionCode androidGitVersion.code() + 1
         versionName androidGitVersion.name()
 //        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
