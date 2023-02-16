@@ -27,7 +27,7 @@ class PlaybackView(val state: RHMIState, val controller: MusicController, val ca
 		const val MUSIC_METADATA_MAX_LINE_LENGTH = 30
 		const val AUDIOSTATE_PLAYLIST_MAX_LINE_LENGTH = 28
 		const val INITIALIZATION_DEFERRED_TIMEOUT = 6000
-		const val POSITION_ACTION_DEBOUNCE = 500
+		const val POSITION_ACTION_DEBOUNCE = 100
 		fun fits(state: RHMIState): Boolean {
 			return state is RHMIState.AudioHmiState || (
 					state is RHMIState.ToolbarState &&

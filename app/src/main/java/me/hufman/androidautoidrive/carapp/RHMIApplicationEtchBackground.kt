@@ -1,6 +1,7 @@
 package me.hufman.androidautoidrive.carapp
 
 import de.bmw.idrive.BMWRemoting
+import de.bmw.idrive.BMWRemoting.RHMIDataTable
 import de.bmw.idrive.RemoteBMWRemotingServer
 import de.bmw.idrive.ValueFactoryBMWRemoting
 import io.bimmergestalt.idriveconnectkit.rhmi.*
@@ -28,13 +29,14 @@ class RHMIApplicationEtchBackground(val remoteServer: RemoteBMWRemotingServer, v
 	override val components = HashMap<Int, RHMIComponent>()
 
 	private val pendingModels = HashMap<Int, Mailbox>()
+	private val pendingModelUpdates = HashMap<Int, Any>()
 
 	private val MailboxCloser = object: Mailbox.Notify {
 		override fun mailboxStatus(p0: Mailbox?, p1: Any?, p2: Boolean) {
 			if (p0?.isFull == true) {
 				p0.closeDelivery()
 				p0.unregisterNotify(this)
-				if (p1 is Int) synchronized(this) {
+				if (p1 is Int) synchronized(this@RHMIApplicationEtchBackground) {
 					pendingModels.remove(p1)
 				}
 
@@ -51,6 +53,14 @@ class RHMIApplicationEtchBackground(val remoteServer: RemoteBMWRemotingServer, v
 				if (triggerEventResponse is Exception) {
 					println("Exception triggering event $p1: $triggerEventResponse")
 				}
+
+				// check for any data that should be set for this model next
+				if (p1 is Int) {
+					val nextUpdate = synchronized(this@RHMIApplicationEtchBackground) { pendingModelUpdates.remove(p1) }
+					if (nextUpdate != null) {
+						setModel(p1, nextUpdate)
+					}
+				}
 			}
 		}
 	}
@@ -58,8 +68,18 @@ class RHMIApplicationEtchBackground(val remoteServer: RemoteBMWRemotingServer, v
 	@Throws(BMWRemoting.SecurityException::class, BMWRemoting.IllegalArgumentException::class, BMWRemoting.ServiceException::class)
 	override fun setModel(modelId: Int, value: Any) {
 		if (ignoreUpdates) return
-		// wait for previous sets of this model to finish
-		fence(synchronized(this) { pendingModels[modelId] })
+		if (value is RHMIDataTable) {
+			// list models are hard, just fence any multiple sets
+			fence(synchronized(this) { pendingModels[modelId] })
+		} else {
+			// queue up a next update, if this model is busy
+			synchronized(this) {
+				if (pendingModels[modelId] != null) {
+					pendingModelUpdates[modelId] = value    // other models are simple, queue them to be updated when it returns
+					return
+				}
+			}
+		}
 
 		// start the call
 		val mailbox = synchronized(remoteServer) {

@@ -97,6 +97,31 @@ class RHMIApplicationEtchBackgroundTest {
 		pendingSetData[0].message(null, Message(ValueFactoryBMWRemoting._mt_de_bmw_idrive_BMWRemoting__result_rhmi_setData, ValueFactoryBMWRemoting("")))
 	}
 	@Test
+	fun testModelDebounce() = runBlockingTest {
+		// should use async and return right away
+		subject.setModel(35, "Name")
+		verify(asyncConnection)._begin_rhmi_setData(1, 35, "Name")
+		assertEquals(1, pendingSetData.size)
+
+		// setting the model again while it is pending should not block or trigger more setData calls yet
+		subject.setModel(35, "NextName")
+		verifyNoMoreInteractions(asyncConnection)
+		assertEquals(1, pendingSetData.size)
+		subject.setModel(35, "NextName2")
+		verifyNoMoreInteractions(asyncConnection)
+		assertEquals(1, pendingSetData.size)
+
+		// when the first call finishes, the debounced data should start
+		pendingSetData[0].message(null, Message(ValueFactoryBMWRemoting._mt_de_bmw_idrive_BMWRemoting__result_rhmi_setData, ValueFactoryBMWRemoting("")))
+
+		verify(asyncConnection)._begin_rhmi_setData(1, 35, "NextName2")
+		assertEquals(2, pendingSetData.size)
+		pendingSetData[1].message(null, Message(ValueFactoryBMWRemoting._mt_de_bmw_idrive_BMWRemoting__result_rhmi_setData, ValueFactoryBMWRemoting("")))
+
+		// no further data sets should happen
+		verifyNoMoreInteractions(asyncConnection)
+	}
+	@Test
 	fun testTargetModel() = runBlocking(Dispatchers.IO) { withTimeout(5000) {
 		// should use sync to set an HMIAction's targetModel and block until done
 		val setJob = launch { subject.setModel(6, 9) }
