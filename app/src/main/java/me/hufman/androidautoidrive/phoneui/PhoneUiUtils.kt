@@ -152,6 +152,26 @@ object LiveDataHelpers {
 		}
 		return result
 	}
+	/**
+	 * Decorates a given LiveData<String> with a unit, where the unit comes from a LiveData<Context.() -> String>
+	 *     Either LiveData object will trigger an update
+	 */
+	fun LiveData<String>.addPlainUnit(unit: LiveData<String>): LiveData<String> {
+		val result = MediatorLiveData<String>()
+		result.value = ""
+		result.addSource(this) {
+			val units = unit.value ?: ""
+			result.value = "$it $units"
+		}
+		result.addSource(unit) {
+			val value = this@addPlainUnit.value
+			if (value != null) {
+				val units = unit.value ?: ""
+				result.value ="$value $units"
+			}
+		}
+		return result
+	}
 }
 
 /**

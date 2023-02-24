@@ -1,5 +1,6 @@
 package me.hufman.androidautoidrive.carapp.notifications
 
+import android.os.Handler
 import com.google.gson.Gson
 import de.bmw.idrive.BMWRemoting
 import de.bmw.idrive.BMWRemotingServer
@@ -11,12 +12,14 @@ import io.bimmergestalt.idriveconnectkit.android.CarAppResources
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionStatus
 import io.bimmergestalt.idriveconnectkit.android.security.SecurityAccess
 import io.bimmergestalt.idriveconnectkit.rhmi.*
+import me.hufman.androidautoidrive.CarInformation
 import me.hufman.androidautoidrive.carapp.*
+import me.hufman.androidautoidrive.carapp.carinfo.views.CarDetailedView
 
-class ReadoutApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securityAccess: SecurityAccess, carAppAssets: CarAppResources) {
+class ReadoutApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securityAccess: SecurityAccess, carAppAssets: CarAppResources, handler: Handler) {
 	val carConnection: BMWRemotingServer
 	val carApp: RHMIApplication
-	val infoState: RHMIState.PlainState
+	val infoState: CarDetailedView
 	val readoutController: ReadoutController
 
 	init {
@@ -40,7 +43,7 @@ class ReadoutApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securit
 		this.readoutController = ReadoutController.build(carApp, "NotificationReadout")
 
 		val destStateId = carApp.components.values.filterIsInstance<RHMIComponent.EntryButton>().first().getAction()?.asHMIAction()?.target!!
-		this.infoState = carApp.states[destStateId] as RHMIState.PlainState
+		this.infoState = CarDetailedView(carApp.states[destStateId] as RHMIState, CarInformation(), handler)
 
 		initWidgets()
 
@@ -63,12 +66,7 @@ class ReadoutApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securit
 	}
 
 	fun initWidgets() {
-		val list = infoState.componentsList.filterIsInstance<RHMIComponent.List>().first()
-		list.setEnabled(false)
-		list.setVisible(true)
-		val data = RHMIModel.RaListModel.RHMIListConcrete(1)
-		data.addRow(arrayOf(L.READOUT_DESCRIPTION))
-		list.getModel()?.setValue(data, 0, 1, 1)
+		infoState.initWidgets()
 	}
 
 	fun disconnect() {
