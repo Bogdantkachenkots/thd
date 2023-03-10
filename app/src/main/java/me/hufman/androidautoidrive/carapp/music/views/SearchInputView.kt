@@ -18,8 +18,9 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class SearchInputView(val state: RHMIState,
+                      coroutineContext: CoroutineContext,
                       private val musicController: MusicController,
-                      private val browseController: BrowsePageController): CoroutineScope {
+                      private val browseController: BrowsePageController) {
 	companion object {
 		val SEARCH_RESULT_SEARCHING = MusicMetadata(mediaId="__SEARCHING__", title=L.MUSIC_BROWSE_SEARCHING)
 		val SEARCH_RESULT_EMPTY = MusicMetadata(mediaId="__EMPTY__", title=L.MUSIC_BROWSE_EMPTY)
@@ -30,8 +31,7 @@ class SearchInputView(val state: RHMIState,
 		const val SEARCH_HISTORY_QUERY_MAX_COUNT = 8
 	}
 
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO
+	val coroutineScope = CoroutineScope(coroutineContext)
 	private var searchJob: Job? = null
 	private var searchQueryHistory: MutableList<String> = LinkedList()
 	private val gson: Gson = Gson()
@@ -130,7 +130,7 @@ class SearchInputView(val state: RHMIState,
 			 */
 			fun search(input: String) {
 				searchJob?.cancel()
-				searchJob = launch(Dispatchers.IO) {
+				searchJob = coroutineScope.launch {
 					sendSuggestions(listOf(SEARCH_RESULT_SEARCHING))
 					val suggestions = getSearchResults(input, MAX_RETRIES)
 

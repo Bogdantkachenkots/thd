@@ -16,7 +16,7 @@ import me.hufman.androidautoidrive.maps.MapResult
 import me.hufman.androidautoidrive.utils.truncate
 import kotlin.coroutines.CoroutineContext
 
-class SearchResultsView(val state: RHMIState, val mapPlaceSearch: MapPlaceSearch, val interaction: MapInteractionController, val mapAppMode: MapAppMode, val locationProvider: CarLocationProvider): CoroutineScope {
+class SearchResultsView(val state: RHMIState, coroutineContext: CoroutineContext, val mapPlaceSearch: MapPlaceSearch, val interaction: MapInteractionController, val mapAppMode: MapAppMode, val locationProvider: CarLocationProvider) {
 	companion object {
 		// current default row width only supports 22 chars before rolling over
 		private const val ROW_LINE_MAX_LENGTH = 22
@@ -35,8 +35,8 @@ class SearchResultsView(val state: RHMIState, val mapPlaceSearch: MapPlaceSearch
 					state.componentsList.filterIsInstance<RHMIComponent.Image>().isEmpty()
 		}
 	}
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO
+
+	val coroutineScope = CoroutineScope(coroutineContext)
 
 	@VisibleForTesting
 	var loaderJob: Job? = null
@@ -71,7 +71,7 @@ class SearchResultsView(val state: RHMIState, val mapPlaceSearch: MapPlaceSearch
 
 	fun show() {
 		loaderJob?.cancel()
-		loaderJob = launch {
+		loaderJob = coroutineScope.launch {
 			if (!loadingContents.isCompleted) {
 				contents = emptyList()
 				listComponent.setEnabled(false)
@@ -140,7 +140,7 @@ class SearchResultsView(val state: RHMIState, val mapPlaceSearch: MapPlaceSearch
 			throw RHMIActionAbort()
 		}
 		searchJob?.cancel()
-		searchJob = launch {
+		searchJob = coroutineScope.launch {
 			val locationResult = if (result.location == null) {
 				mapPlaceSearch.resultInformationAsync(result.id).await()    // ask for LatLong, to navigate to
 			} else {

@@ -27,9 +27,12 @@ import me.hufman.androidautoidrive.music.MusicController
 import me.hufman.androidautoidrive.utils.GraphicsHelpers
 import me.hufman.androidautoidrive.utils.Utils.loadZipfile
 import me.hufman.androidautoidrive.utils.removeFirst
+import kotlin.coroutines.CoroutineContext
 
 
-class MusicApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securityAccess: SecurityAccess, val carAppAssets: CarAppResources, val musicImageIDs: MusicImageIDs, val phoneAppResources: PhoneAppResources, val graphicsHelpers: GraphicsHelpers, val musicAppDiscovery: MusicAppDiscovery, val musicController: MusicController, val musicAppMode: MusicAppMode) {
+class MusicApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securityAccess: SecurityAccess, val carAppAssets: CarAppResources,
+               val coroutineContext: CoroutineContext, val musicImageIDs: MusicImageIDs, val phoneAppResources: PhoneAppResources, val graphicsHelpers: GraphicsHelpers,
+               val musicAppDiscovery: MusicAppDiscovery, val musicController: MusicController, val musicAppMode: MusicAppMode) {
 	companion object {
 		const val TAG = "MusicApp"
 	}
@@ -89,7 +92,7 @@ class MusicApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securityA
 			playbackView = PlaybackView(unclaimedStates.removeFirst { PlaybackView.fits(it) }, musicController, carAppImages, phoneAppResources, graphicsHelpers, musicImageIDs, musicAppMode)
 			appSwitcherView = AppSwitcherView(unclaimedStates.removeFirst { AppSwitcherView.fits(it) }, musicAppDiscovery, avContext, graphicsHelpers, musicImageIDs)
 			enqueuedView = EnqueuedView(unclaimedStates.removeFirst { EnqueuedView.fits(it) }, musicController, graphicsHelpers, musicImageIDs)
-			browseView = BrowseView(listOf(unclaimedStates.removeFirst { BrowseView.fits(it) }, unclaimedStates.removeFirst { BrowseView.fits(it) }, unclaimedStates.removeFirst { BrowseView.fits(it) }), musicController, musicImageIDs, graphicsHelpers)
+			browseView = BrowseView(listOf(unclaimedStates.removeFirst { BrowseView.fits(it) }, unclaimedStates.removeFirst { BrowseView.fits(it) }, unclaimedStates.removeFirst { BrowseView.fits(it) }), coroutineContext, musicController, musicImageIDs, graphicsHelpers)
 			inputState = unclaimedStates.removeFirst { it.componentsList.filterIsInstance<RHMIComponent.Input>().firstOrNull()?.suggestModel ?: 0 > 0 }
 			customActionsView = CustomActionsView(unclaimedStates.removeFirst { CustomActionsView.fits(it) }, graphicsHelpers, musicController)
 			globalMetadata = GlobalMetadata(carApp, musicController)

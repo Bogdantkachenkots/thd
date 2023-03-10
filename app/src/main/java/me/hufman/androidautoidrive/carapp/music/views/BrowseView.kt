@@ -13,6 +13,7 @@ import me.hufman.androidautoidrive.music.MusicController
 import me.hufman.androidautoidrive.music.MusicMetadata
 import me.hufman.androidautoidrive.utils.GraphicsHelpers
 import java.util.*
+import kotlin.coroutines.CoroutineContext
 
 data class BrowseState(val location: MusicMetadata?,    // the directory the user selected
                        var allLocations: MutableList<MusicMetadata?>,      // all locations, including any that were shortcutted
@@ -20,7 +21,7 @@ data class BrowseState(val location: MusicMetadata?,    // the directory the use
                        var pageView: BrowsePageView? = null,    // the PageView that is showing for this location
 )
 
-class BrowseView(val states: List<RHMIState>, val musicController: MusicController, val musicImageIDs: MusicImageIDs, val graphicsHelpers: GraphicsHelpers) {
+class BrowseView(val states: List<RHMIState>, val coroutineContext: CoroutineContext, val musicController: MusicController, val musicImageIDs: MusicImageIDs, val graphicsHelpers: GraphicsHelpers) {
 	companion object {
 		val SEARCHRESULT_PLAY_FROM_SEARCH = MusicMetadata(mediaId="__PLAY_FROM_SEARCH__", title= L.MUSIC_BROWSE_PLAY_FROM_SEARCH)
 		fun fits(state: RHMIState): Boolean {
@@ -151,7 +152,7 @@ class BrowseView(val states: List<RHMIState>, val musicController: MusicControll
 		val jumpable = false        // pushed pages are never browsable, we update the top page later
 		val searchable = directory == null && ((musicController.currentAppInfo?.searchable ?: false) || musicController.isSupportedAction(MusicAction.PLAY_FROM_SEARCH))
 		val browseModel = BrowsePageModel(title, contents, previouslySelected, jumpable, searchable, true, false)
-		val browsePage = BrowsePageView(state, musicImageIDs, browseModel, pageController, graphicsHelpers)
+		val browsePage = BrowsePageView(state, coroutineContext, musicImageIDs, browseModel, pageController, graphicsHelpers)
 		browsePage.initWidgets(inputState)
 		stackSlot.pageModel = browseModel
 		stackSlot.pageView = browsePage
@@ -165,7 +166,7 @@ class BrowseView(val states: List<RHMIState>, val musicController: MusicControll
 		stack.subList(index, stack.size).clear()
 		val stackSlot = BrowseState(null, mutableListOf()).apply { stack.add(this) }
 		val browseModel = BrowsePageModel(L.MUSIC_SEARCH_RESULTS_LABEL, deferredSearchResults, null, false, false, false, true)
-		val browsePage = BrowsePageView(state, musicImageIDs, browseModel, pageController, graphicsHelpers)
+		val browsePage = BrowsePageView(state, coroutineContext, musicImageIDs, browseModel, pageController, graphicsHelpers)
 		browsePage.initWidgets(inputState)
 		stackSlot.pageModel = browseModel
 		stackSlot.pageView = browsePage
@@ -181,14 +182,14 @@ class BrowseView(val states: List<RHMIState>, val musicController: MusicControll
 	}
 
 	fun openFilterInput(browsePageModel: BrowsePageModel): FilterInputView {
-		val nextState = FilterInputView(inputState, pageController, browsePageModel)
+		val nextState = FilterInputView(inputState, coroutineContext, pageController, browsePageModel)
 		nextState.show()
 
 		return nextState
 	}
 
 	fun openSearchInput(): SearchInputView {
-		val nextState = SearchInputView(inputState, musicController, pageController)
+		val nextState = SearchInputView(inputState, coroutineContext, musicController, pageController)
 		nextState.show()
 
 		return nextState

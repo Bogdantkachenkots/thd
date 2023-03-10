@@ -14,13 +14,13 @@ import me.hufman.androidautoidrive.music.MusicMetadata
 import kotlin.coroutines.CoroutineContext
 
 class FilterInputView(val state: RHMIState,
+                      coroutineContext: CoroutineContext,
                       private val browseController: BrowsePageController,
-                      private val browsePageModel: BrowsePageModel): CoroutineScope {
+                      private val browsePageModel: BrowsePageModel) {
 	val FILTERRESULT_LOADING = MusicMetadata(mediaId="__LOADING__", title=L.MUSIC_BROWSE_LOADING)
 	val FILTERRESULT_EMPTY = MusicMetadata(mediaId="__EMPTY__", title=L.MUSIC_BROWSE_EMPTY)
 
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO
+	val coroutineScope = CoroutineScope(coroutineContext)
 
 	var loadingJob: Job? = null
 	var musicList: List<MusicMetadata> = emptyList()
@@ -32,7 +32,7 @@ class FilterInputView(val state: RHMIState,
 			@Suppress("EXPERIMENTAL_API_USAGE")
 			musicList = browsePageModel.contents.getCompleted() ?: emptyList()
 		} else {
-			loadingJob = launch(Dispatchers.IO) {
+			loadingJob = coroutineScope.launch {
 				musicList = browsePageModel.contents.await() ?: emptyList()
 				// update suggestions, if any input exists
 				inputState?.input?.also {

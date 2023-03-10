@@ -56,7 +56,7 @@ class CarDetailedInfo(cdsMetrics: CDSMetrics) {
 	// real ones would need translated labels
 	val accelContact = cdsMetrics.accelerator.format("%.1f%%").map { "Accel $it"}
 	val accelEcoContact = cdsMetrics.acceleratorEco.format("%.1f%%").map { "AccelEco $it"}
-	val clutchContact = cdsMetrics.clutch.format("%.1f%%").map { "Clutch $it"}
+	val clutchContact = cdsMetrics.clutch.map { "Clutch $it"}
 	val brakeContact = cdsMetrics.brake.format("%.1f%%").map { "Brake $it"}
 	val steeringAngle = cdsMetrics.steeringAngle.format("%.1f°").map { "Steering $it" }
 
@@ -78,7 +78,7 @@ class CarDetailedInfo(cdsMetrics: CDSMetrics) {
 		put(L.CARINFO_TITLE, overviewFields)
 
 		// add more pages like this:
-//		put("Driving Details", drivingFields)
+		put("Driving Details", drivingFields)
 	}
 	val category = MutableStateFlow(categories.keys.first())
 	val categoryFields: Flow<List<Flow<String>>> = category.map { categories[it] ?: emptyList() }

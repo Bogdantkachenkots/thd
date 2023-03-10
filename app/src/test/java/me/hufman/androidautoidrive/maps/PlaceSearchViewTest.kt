@@ -57,12 +57,12 @@ class PlaceSearchViewTest {
 
 	@Test
 	fun testInitialization() = runBlocking {
-		val view = PlaceSearchView(inputState, mapPlaceSearch, mapInteractionController)
+		val view = PlaceSearchView(inputState, coroutineContext, mapPlaceSearch, mapInteractionController)
 	}
 
 	@Test
 	fun testSearch() = runBlocking {
-		val view = PlaceSearchView(inputState, mapPlaceSearch, mapInteractionController)
+		val view = PlaceSearchView(inputState, coroutineContext, mapPlaceSearch, mapInteractionController)
 
 		view.onInput("voice input")
 		view.searchJob?.join()
@@ -78,7 +78,7 @@ class PlaceSearchViewTest {
 
 	@Test
 	fun testFullResults() = runBlocking {
-		val view = PlaceSearchView(inputState, mapPlaceSearch, mapInteractionController)
+		val view = PlaceSearchView(inputState, coroutineContext, mapPlaceSearch, mapInteractionController)
 		view.initWidgets(fullImageView, searchResultsView)
 
 		view.onInput("voice input")
@@ -98,7 +98,7 @@ class PlaceSearchViewTest {
 	}
 	@Test
 	fun testNavigate() = runBlocking {
-		val view = PlaceSearchView(inputState, mapPlaceSearch, mapInteractionController)
+		val view = PlaceSearchView(inputState, coroutineContext, mapPlaceSearch, mapInteractionController)
 		view.initWidgets(fullImageView, searchResultsView)
 
 		view.onInput("voice input")

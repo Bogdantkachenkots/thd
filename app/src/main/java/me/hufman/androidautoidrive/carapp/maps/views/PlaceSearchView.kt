@@ -11,11 +11,9 @@ import me.hufman.androidautoidrive.maps.MapResult
 import me.hufman.androidautoidrive.maps.MapPlaceSearch
 import kotlin.coroutines.CoroutineContext
 
-class PlaceSearchView(state: RHMIState, val mapPlaceSearch: MapPlaceSearch, val interaction: MapInteractionController): InputState<MapResult>(state), CoroutineScope {
+class PlaceSearchView(state: RHMIState, coroutineContext: CoroutineContext, val mapPlaceSearch: MapPlaceSearch, val interaction: MapInteractionController): InputState<MapResult>(state) {
 	private val SEARCHRESULT_VIEW_FULL_RESULTS = MapResult("__VIEWFULLRESULTS__", name=L.MAP_SEARCH_RESULTS_VIEW_FULL_RESULTS)
-
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO
+	val coroutineScope = CoroutineScope(coroutineContext)
 
 	@VisibleForTesting
 	var searchJob: Job? = null
@@ -30,7 +28,7 @@ class PlaceSearchView(state: RHMIState, val mapPlaceSearch: MapPlaceSearch, val 
 
 	override fun onEntry(input: String) {
 		searchJob?.cancel()
-		searchJob = launch {
+		searchJob = coroutineScope.launch {
 			this@PlaceSearchView.searchResults = mapPlaceSearch.searchLocationsAsync(input)
 			val results = searchResults.await()
 			sendSuggestions(results)
@@ -54,7 +52,7 @@ class PlaceSearchView(state: RHMIState, val mapPlaceSearch: MapPlaceSearch, val 
 		}
 		interaction.stopNavigation()
 		searchJob?.cancel()
-		searchJob = launch {
+		searchJob = coroutineScope.launch {
 			val locationResult = if (item.location == null) {
 				mapPlaceSearch.resultInformationAsync(item.id).await()    // ask for LatLong, to navigate to
 			} else {

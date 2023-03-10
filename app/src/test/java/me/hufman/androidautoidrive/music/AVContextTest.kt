@@ -21,6 +21,8 @@ import io.bimmergestalt.idriveconnectkit.IDriveConnection
 import io.bimmergestalt.idriveconnectkit.android.CarAppResources
 import io.bimmergestalt.idriveconnectkit.android.IDriveConnectionStatus
 import io.bimmergestalt.idriveconnectkit.android.security.SecurityAccess
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.ByteArrayInputStream
@@ -42,6 +44,9 @@ class AVContextTest {
 		on { getAppIcon(any())} doReturn mock<Drawable>()
 		on { getIconDrawable(any())} doReturn mock<Drawable>()
 	}
+
+	@OptIn(ExperimentalCoroutinesApi::class)
+	val coroutineContext = StandardTestDispatcher()
 
 	val graphicsHelpers = mock<GraphicsHelpers> {
 		on { isDark(any()) } doReturn false
@@ -82,7 +87,7 @@ class AVContextTest {
 		val mode = mock<MusicAppMode> {
 			on { shouldRequestAudioContext() } doReturn false
 		}
-		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
+		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, coroutineContext, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
 		val mockClient = IDriveConnection.mockRemotingClient as BMWRemotingClient
 
 		// post a new application
@@ -188,7 +193,7 @@ class AVContextTest {
 		val mode = mock<MusicAppMode> {
 			on { shouldRequestAudioContext() } doReturn true
 		}
-		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
+		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, coroutineContext, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
 		val mockClient = IDriveConnection.mockRemotingClient as BMWRemotingClient
 
 		// post a new application
@@ -250,7 +255,7 @@ class AVContextTest {
 		val mode = mock<MusicAppMode> {
 			on { shouldRequestAudioContext() } doReturn false
 		}
-		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
+		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, coroutineContext, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
 		val mockClient = IDriveConnection.mockRemotingClient as BMWRemotingClient
 
 		// now click AV buttons
@@ -280,7 +285,7 @@ class AVContextTest {
 		val mode = mock<MusicAppMode> {
 			on { shouldRequestAudioContext() } doReturn false
 		}
-		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
+		MusicApp(iDriveConnectionStatus, securityAccess, carAppResources, coroutineContext, MusicImageIDsMultimedia, phoneAppResources, graphicsHelpers, musicAppDiscovery, musicController, mode)
 		val mockClient = IDriveConnection.mockRemotingClient as BMWRemotingClient
 
 		val musicAppInfo = MusicAppInfo("Test", mock(), "example.test", null)

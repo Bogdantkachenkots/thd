@@ -6,7 +6,9 @@ import de.bmw.idrive.BMWRemoting
 import io.bimmergestalt.idriveconnectkit.rhmi.*
 import io.bimmergestalt.idriveconnectkit.rhmi.mocking.RHMIApplicationMock
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import me.hufman.androidautoidrive.carapp.FullImageView
 import me.hufman.androidautoidrive.carapp.L
 import me.hufman.androidautoidrive.carapp.RHMIActionAbort
@@ -39,6 +41,9 @@ class SearchResultsViewTest {
 			}
 		)
 	}
+
+	@OptIn(ExperimentalCoroutinesApi::class)
+	val coroutineContext = UnconfinedTestDispatcher()
 	val mapPlaceSearch = mock<MapPlaceSearch>()
 	val mapInteractionController = mock<MapInteractionController>()
 	val mapAppMode = mock<MapAppMode> {
@@ -51,7 +56,8 @@ class SearchResultsViewTest {
 		on {state} doReturn RHMIState.PlainState(mockApp, 6)
 	}
 
-	val view = SearchResultsView(searchResultsState, mapPlaceSearch, mapInteractionController, mapAppMode, locationProvider).apply {
+	@OptIn(ExperimentalCoroutinesApi::class)
+	val view = SearchResultsView(searchResultsState, coroutineContext, mapPlaceSearch, mapInteractionController, mapAppMode, locationProvider).apply {
 		initWidgets(fullImageView)
 	}
 

@@ -27,7 +27,7 @@ import me.hufman.androidautoidrive.cds.*
 import me.hufman.androidautoidrive.utils.Utils
 
 class ReadoutApp(val iDriveConnectionStatus: IDriveConnectionStatus, val securityAccess: SecurityAccess, val carAppAssets: CarAppResources, val handler: Handler, val resources: Resources) {
-	private val coroutineContext = handler.asCoroutineDispatcher()
+	private val coroutineContext = handler.asCoroutineDispatcher("CarThreadCarInfo")
 	val carConnection: BMWRemotingServer
 	var rhmiHandle: Int = -1
 	val carAppSwappable: RHMIApplicationSwappable

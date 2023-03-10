@@ -10,7 +10,6 @@ import me.hufman.androidautoidrive.carapp.music.MusicImageIDs
 import me.hufman.androidautoidrive.music.MusicMetadata
 import me.hufman.androidautoidrive.utils.GraphicsHelpers
 import me.hufman.androidautoidrive.utils.truncate
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
@@ -25,16 +24,16 @@ enum class BrowseAction(val getLabel: () -> String) {
 	}
 }
 class BrowsePageView(val state: RHMIState,
+                     coroutineContext: CoroutineContext,
                      musicImageIDs: MusicImageIDs,
                      val browsePageModel: BrowsePageModel,
                      val browseController: BrowsePageController,
-                     val graphicsHelpers: GraphicsHelpers): CoroutineScope {
+                     val graphicsHelpers: GraphicsHelpers) {
 	// a previous row that may have a checkmark
 	// remember to clear it when a new previouslySelected is set
 	var oldPreviouslySelectedIndex: Int? = null
 
-	override val coroutineContext: CoroutineContext
-		get() = Dispatchers.IO
+	val coroutineScope = CoroutineScope(coroutineContext)
 
 	companion object {
 		const val LOADING_TIMEOUT = 2000
@@ -143,7 +142,7 @@ class BrowsePageView(val state: RHMIState,
 	fun load() {
 		// start loading data
 		loaderJob?.cancel()
-		loaderJob = launch(Dispatchers.IO) {
+		loaderJob = coroutineScope.launch {
 			if (this@BrowsePageView.musicList.isEmpty()) {
 				currentListModel = loadingList
 				showList()

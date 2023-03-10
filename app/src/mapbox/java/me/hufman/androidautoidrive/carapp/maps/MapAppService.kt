@@ -4,6 +4,7 @@ import android.hardware.display.VirtualDisplay
 import android.util.Log
 import io.bimmergestalt.idriveconnectkit.RHMIDimensions
 import io.bimmergestalt.idriveconnectkit.android.CarAppAssetResources
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import me.hufman.androidautoidrive.*
 import me.hufman.androidautoidrive.carapp.CarAppService
 import me.hufman.androidautoidrive.carapp.music.MusicAppMode
@@ -49,6 +50,7 @@ class MapAppService: CarAppService() {
 
 		val mapApp = MapApp(iDriveConnectionStatus, securityAccess,
 				CarAppAssetResources(applicationContext, "smartthings"),
+				handler!!.asCoroutineDispatcher("CarThreadMap"),
 				mapAppMode, carLocationProvider,
 				MapInteractionControllerIntent(applicationContext), mapPlaceSearch, mapScreenCapture)
 		this.mapApp = mapApp

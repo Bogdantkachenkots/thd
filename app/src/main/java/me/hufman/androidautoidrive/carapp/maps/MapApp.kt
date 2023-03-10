@@ -24,11 +24,12 @@ import me.hufman.androidautoidrive.maps.MapResult
 import me.hufman.androidautoidrive.utils.removeFirst
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.coroutines.CoroutineContext
 
 const val TAG = "MapView"
 
 class MapApp(iDriveConnectionStatus: IDriveConnectionStatus, securityAccess: SecurityAccess, val carAppAssets: CarAppResources,
-             val mapAppMode: MapAppMode, val locationProvider: CarLocationProvider,
+             val coroutineContext: CoroutineContext, val mapAppMode: MapAppMode, val locationProvider: CarLocationProvider,
              val interaction: MapInteractionController, val mapPlaceSearch: MapPlaceSearch, val map: VirtualDisplayScreenCapture) {
 
 	val carappListener = CarAppListener()
@@ -89,8 +90,8 @@ class MapApp(iDriveConnectionStatus: IDriveConnectionStatus, securityAccess: Sec
 		stateInput = carApp.states.values.filterIsInstance<RHMIState.PlainState>().first { state ->
 			state.componentsList.filterIsInstance<RHMIComponent.Input>().any { it.suggestAction > 0 }
 		}
-		stateInputState = PlaceSearchView(stateInput, mapPlaceSearch, interaction)
-		searchResultsView = SearchResultsView(unclaimedStates.removeFirst { SearchResultsView.fits(it) }, mapPlaceSearch, interaction, mapAppMode, locationProvider)
+		stateInputState = PlaceSearchView(stateInput, coroutineContext, mapPlaceSearch, interaction)
+		searchResultsView = SearchResultsView(unclaimedStates.removeFirst { SearchResultsView.fits(it) }, coroutineContext, mapPlaceSearch, interaction, mapAppMode, locationProvider)
 
 		// connect buttons together
 		carApp.components.values.filterIsInstance<RHMIComponent.EntryButton>().forEach{

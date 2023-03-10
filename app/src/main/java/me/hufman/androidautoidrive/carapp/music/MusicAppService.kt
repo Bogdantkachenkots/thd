@@ -5,6 +5,7 @@ import android.media.AudioManager
 import android.util.Log
 import de.bmw.idrive.BMWRemoting
 import io.bimmergestalt.idriveconnectkit.android.CarAppAssetResources
+import kotlinx.coroutines.android.asCoroutineDispatcher
 import me.hufman.androidautoidrive.*
 import me.hufman.androidautoidrive.carapp.CarAppService
 import me.hufman.androidautoidrive.carapp.navigation.NavigationTriggerApp
@@ -53,6 +54,7 @@ class MusicAppService: CarAppService() {
 			try {
 				carappMusic = MusicApp(iDriveConnectionStatus, securityAccess,
 						CarAppAssetResources(applicationContext, "spotify"),
+						handler.asCoroutineDispatcher("CarThreadMusicID5"),
 						MusicImageIDsSpotify,
 						PhoneAppResourcesAndroid(applicationContext),
 						GraphicsHelpersAndroid(),
@@ -66,6 +68,7 @@ class MusicAppService: CarAppService() {
 		if (carappMusic == null) {
 			carappMusic = MusicApp(iDriveConnectionStatus, securityAccess,
 					CarAppAssetResources(applicationContext, "multimedia"),
+					handler.asCoroutineDispatcher("CarThreadMusicID4"),
 					MusicImageIDsMultimedia,
 					PhoneAppResourcesAndroid(applicationContext),
 					GraphicsHelpersAndroid(),

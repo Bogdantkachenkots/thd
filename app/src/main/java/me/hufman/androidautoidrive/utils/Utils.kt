@@ -220,7 +220,7 @@ fun Bundle.dumpToString(): String {
 /** Wait for a Deferred to resolve
  * if it takes longer than the timeout, run the timeoutHandler then continue waiting
  */
-suspend inline fun <T> Deferred<T>.awaitPending(timeout: Long, timeoutHandler: () -> Unit): T {
+suspend inline fun <T> Deferred<T>.awaitPending(timeout: Long, timeoutHandler: () -> Unit): T? {
 	val deferred = this
 	return try {
 		return withTimeout(timeout) {
@@ -228,10 +228,10 @@ suspend inline fun <T> Deferred<T>.awaitPending(timeout: Long, timeoutHandler: (
 		}
 	} catch (ex: CancellationException) {
 		timeoutHandler()
-		deferred.await()
+		null
 	}
 }
-suspend inline fun <T> Deferred<T>.awaitPending(timeout: Int, timeoutHandler: () -> Unit): T {
+suspend inline fun <T> Deferred<T>.awaitPending(timeout: Int, timeoutHandler: () -> Unit): T? {
 	return awaitPending(timeout.toLong(), timeoutHandler)
 }
 
