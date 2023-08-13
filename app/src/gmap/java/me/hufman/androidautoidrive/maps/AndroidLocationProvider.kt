@@ -16,16 +16,15 @@ class AndroidLocationProvider(val locationProvider: FusedLocationProviderClient)
 
 	inner class LocationCallbackImpl: LocationCallback() {
 		override fun onLocationResult(result: LocationResult) {
-			onLocationUpdate(result.lastLocation)
+			result.lastLocation?.let { onLocationUpdate(it) }
 		}
 	}
 
 	@SuppressLint("MissingPermission")
 	override fun start() {
-		val locationRequest = LocationRequest.create()
-		locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-		locationRequest.interval = 3000
-		locationRequest.fastestInterval = 500
+		val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000).apply {
+			setMinUpdateIntervalMillis(500)
+		}.build()
 
 		locationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
 	}
