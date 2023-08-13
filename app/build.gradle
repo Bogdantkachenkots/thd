@@ -15,8 +15,6 @@ apply from: 'buildtools/ColoredOutput.gradle'
 
 apply from: 'buildtools/jacoco.gradle'
 
-apply from: 'buildtools/SentryProperties.gradle'
-
 apply from: 'buildtools/checksums.gradle'
 
 apply from: 'buildtools/external.gradle'
@@ -55,6 +53,7 @@ android {
         archivesBaseName = "androidautoidrive-${androidGitVersion.name()}"
         buildConfigField "long", "COMMIT_TIME", ((grgit != null && !androidGitVersion.name().contains("-dirty")) ? grgit.head().dateTime.toEpochSecond() : 0L) + "L"
         manifestPlaceholders = [
+                sentry_dsn: System.env.AndroidAutoIdrive_SentryDsn ? System.env.AndroidAutoIdrive_SentryDsn : AndroidAutoIdrive_SentryDsn,
                 spotify_api_key: System.env.AndroidAutoIdrive_SpotifyApiKey ? System.env.AndroidAutoIdrive_SpotifyApiKey : AndroidAutoIdrive_SpotifyApiKey,
                 appAuthRedirectScheme: applicationId
         ]
@@ -152,7 +151,8 @@ android {
         gmap {
             dimension "map"
             // load api keys from ~/.gradle/gradle.properties
-            manifestPlaceholders = [spotify_api_key: System.env.AndroidAutoIdrive_SpotifyApiKey ? System.env.AndroidAutoIdrive_SpotifyApiKey : AndroidAutoIdrive_SpotifyApiKey,
+            manifestPlaceholders = [sentry_dsn: System.env.AndroidAutoIdrive_SentryDsn ? System.env.AndroidAutoIdrive_SentryDsn : AndroidAutoIdrive_SentryDsn,
+                                    spotify_api_key: System.env.AndroidAutoIdrive_SpotifyApiKey ? System.env.AndroidAutoIdrive_SpotifyApiKey : AndroidAutoIdrive_SpotifyApiKey,
                                     gmaps_api_key: System.env.AndroidAutoIdrive_GmapsApiKey ? System.env.AndroidAutoIdrive_GmapsApiKey : AndroidAutoIdrive_GmapsApiKey,
                                     appAuthRedirectScheme: defaultConfig.applicationId]
         }
@@ -329,6 +329,6 @@ dependencies {
     }
     mapboxImplementation 'com.google.android.gms:play-services-location:19.0.1'
 
-    sentryImplementation 'io.sentry:sentry-android:1.7.16'
+    sentryImplementation 'io.sentry:sentry-android:6.28.0'
     sentryImplementation 'org.slf4j:slf4j-nop:1.7.25'
 }
